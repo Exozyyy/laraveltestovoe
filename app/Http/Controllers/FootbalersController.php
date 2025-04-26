@@ -8,14 +8,25 @@ use Illuminate\Http\Request;
 
 class FootbalersController extends Controller
 {
-    // Метод для отображения страницы с формой для добавления футболиста
-    public function create()
+
+    public function index()
     {
-        $teams = Team::all();
-        return view('footbalers.add', compact('teams'));
+        $footbalers = Footbaler::with('team')->get(); 
+        return view('footbalers.all', [
+            'footbalers' => $footbalers,
+            'page' => 'list',  
+        ]);
     }
 
-    // Метод для сохранения нового футболиста
+    public function create()
+    {
+        $teams = Team::all(); 
+        return view('footbalers.all', [
+            'teams' => $teams,
+            'page' => 'create',  
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -27,6 +38,14 @@ class FootbalersController extends Controller
         ]);
 
         if ($request->has('new_team') && !empty($request->new_team)) {
+            $existingTeam = Team::where('name', $request->new_team)
+                                ->where('country', $request->country)
+                                ->first();
+
+            if ($existingTeam) {
+                return redirect()->route('footbalers.create')->with('error', 'Team already exists!');
+            }
+
             $team = Team::create([
                 'name' => $request->new_team,
                 'country' => $request->country,
@@ -38,28 +57,24 @@ class FootbalersController extends Controller
 
         Footbaler::create($validated);
 
-        return redirect()->route('footbalers.create')->with('success', 'Footballer added successfully!');
+        return redirect()->route('footbalers.index')->with('success', 'Footballer added successfully!');
     }
 
-    // Метод для отображения списка всех футболистов
-    public function index()
-    {
-        $footbalers = Footbaler::with('team')->get();
-        return view('footbalers.index', compact('footbalers'));
-    }
 
-    // Метод для отображения формы редактирования футболиста
     public function edit($id)
     {
-        $footbaler = Footbaler::findOrFail($id);
-        $teams = Team::all();
-        return view('footbalers.edit', compact('footbaler', 'teams'));
+        $footbaler = Footbaler::findOrFail($id); 
+        $teams = Team::all(); 
+        return view('footbalers.all', [
+            'footbaler' => $footbaler,
+            'teams' => $teams,
+            'page' => 'edit',  
+        ]);
     }
 
-    // Метод для обновления данных футболиста
     public function update(Request $request, $id)
     {
-        $footbaler = Footbaler::findOrFail($id);
+        $footbaler = Footbaler::findOrFail($id); 
 
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
@@ -70,6 +85,14 @@ class FootbalersController extends Controller
         ]);
 
         if ($request->has('new_team') && !empty($request->new_team)) {
+            $existingTeam = Team::where('name', $request->new_team)
+                                ->where('country', $request->country)
+                                ->first();
+
+            if ($existingTeam) {
+                return redirect()->route('footbalers.edit', $id)->with('error', 'Team already exists!');
+            }
+
             $team = Team::create([
                 'name' => $request->new_team,
                 'country' => $request->country,
@@ -79,7 +102,6 @@ class FootbalersController extends Controller
             $validated['team_id'] = $request->team_id;
         }
 
-        // Обновляем данные футболиста
         $footbaler->update($validated);
 
         return redirect()->route('footbalers.index')->with('success', 'Footballer updated successfully!');
