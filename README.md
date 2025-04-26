@@ -7,8 +7,8 @@
 ### Требования:
 
 -   ОС Windows
--   PHP 8.0 и выше
--   Composer
+-   PHP 8.0 и выше (https://www.php.net/downloads.php)
+-   Composer (https://getcomposer.org/download/)
 -   SQLite (или другая СУБД, но по умолчанию используется SQLite)
 
 ### 1. Клонируйте мой репозиторий:
@@ -55,6 +55,7 @@ php artisan serve
 -   **app/Http/Controllers/FootbalersController.php** — контроллер для работы с футболистами.
 -   **app/Http/Controllers/TeamController.php** — контроллер для работы с командами.
 -   **resources/views** — папка, в которой находятся Blade-шаблоны для отображения контента.
+-   **layouts/index.blade.php** — шаблон для всех последующих страниц, включающий в себя статичный header и footer
     -   **footbalers/all.blade.php** — шаблон для отображения списка футболистов и формы добавления/редактирования.
     -   **footbalers/\_form.blade.php** — шаблон для формы добавления и редактирования футболистов.
 -   **public/css/style.css** — файл с CSS-стилями для оформления страницы.
